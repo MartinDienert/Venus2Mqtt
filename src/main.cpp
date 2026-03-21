@@ -3,12 +3,11 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
-#include <ModbusMaster.h>
 #include <PubSubClient.h>
 #include <time.h>
 #include <Main.h>
 #include <Einstellungen.h>
-//#include <SpeicherLib.h>
+#include <VenusLib.h>
 
 // allgemeine Einstellungen ----------------------------
 const char* ssidap = "AP-Venus";
@@ -21,7 +20,7 @@ ESP8266WebServer server(80);
 ESP8266HTTPUpdateServer httpUpdater;
 WiFiClient wifiClient;
 PubSubClient mqttClient = PubSubClient(wifiClient);
-//Speicher speicher = Speicher();
+Venus venus = Venus(1, Serial);
 Einstellungen einst = Einstellungen(&server);
 
 // Log -------------------------------------------------
@@ -70,7 +69,7 @@ char* getLog(){
 // Json -----------------------------------------
 char json[200] = {'\0'};
 
-// void generiereJson(Daten daten){
+ void generiereJson(Daten daten){
 //   char datum[36];
 //   char zeit[36];
 //   getDatumZeitStr(datum, zeit);
@@ -92,7 +91,7 @@ char json[200] = {'\0'};
 //       datum, zeit, (daten.laden)? "\"ein\"": "\"aus\"", (daten.entladen)? "\"ein\"": "\"aus\"");
 //   strcat(json, s);
 //   strcat(json, "}");
-// }
+ }
 
 char* getJson(){
   return json;
@@ -429,20 +428,15 @@ void setupTimer(){
 }
 
 // Speicher -------------------------------------------
-int lesen(byte *b, int l){
-  return Serial.readBytes(b, l);
-}
-
-void schreiben(byte *b, int l){
-  digitalWrite(D1, HIGH);
-  delay(10);
-  Serial.write(b, l);
-  delay(5);
-  digitalWrite(D1, LOW);
+void lesensenden(uint8_t i){
+  if(i == 1)
+    digitalWrite(D1, HIGH);
+  else
+    digitalWrite(D1, LOW);
 }
 
 void neueDaten(){
-//  generiereJson(speicher.getDaten());
+  generiereJson(venus.getDaten());
   mqttPubSpontan();
 }
 
@@ -450,14 +444,11 @@ void logEintrag(const char *s){
   addLog(s);
 }
 
-void setupSpeicher(){
-  // speicher.callbackLesen(lesen);
-  // speicher.callbackSchreiben(schreiben);
-  // speicher.callbackNeueDaten(neueDaten);
-  // speicher.callbackLogeintrag(logEintrag);
-  // if(einst.master) speicher.startMaster(5000);
-  // if(einst.mDaten) speicher.startMDaten(30000);
-  // generiereJson(speicher.getDaten());
+void setupVenus(){
+   venus.callbackLesenSenden(lesensenden);
+   venus.callbackNeueDaten(neueDaten);
+   venus.callbackLogeintrag(logEintrag);
+   generiereJson(venus.getDaten());
 }
 
 // OTA Update ----------------------------------------
@@ -481,12 +472,12 @@ void setup(){
   setupMqtt();
   setupNTP();
   setupTimer();
-  setupSpeicher();
+  setupVenus();
   setupOta();
-  while(Serial.available()){          // Puffer leeren
-    Serial.read();
-    delay(5);
-  }
+//  while(Serial.available()){          // Puffer leeren
+//    Serial.read();
+//    delay(5);
+//  }
   addLog("Programm gestartet.");
 }
 
@@ -495,12 +486,12 @@ void loop(){
   digitalWrite(LED_BUILTIN,LOW);      // LED leuchtet
   timerRun();
   yield();
-//  speicher.run();
+  venus.run();
   yield();
   server.handleClient();
   yield();
   mqttClient.loop();
   yield();
   digitalWrite(LED_BUILTIN,HIGH);     // LED ist in der Pause aus
-  delay(300);  
+  delay(50);  
 }

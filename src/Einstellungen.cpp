@@ -71,10 +71,10 @@ void Einstellungen::setEinst(){
         if(server->arg("save").equals("ei") && server->hasArg("ntip")){
             boolean m = master;
             master = (server->hasArg("ma") && server->arg("ma").equals("on"))? true: false;
-            if(m != master) speicher.setMaster(master);
+//            if(m != master) speicher.setMaster(master);
             m = mDaten;
             mDaten = (server->hasArg("md") && server->arg("md").equals("on"))? true: false;
-            if(m != mDaten) speicher.setMDaten(mDaten);
+//            if(m != mDaten) speicher.setMDaten(mDaten);
             ntzIp = server->arg("ntip");
             String daten[] = {(master)? "on": "off", (mDaten)? "on": "off", ntzIp};
             einst_speichern("einst", daten, 3);
