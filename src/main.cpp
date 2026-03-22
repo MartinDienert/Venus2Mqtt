@@ -60,6 +60,7 @@ void addLog(const char *lo){
     strcat(log1, "\r\n");
     pos += lg;
   }
+  Serial.println(log1);
 }
 
 char* getLog(){
@@ -427,12 +428,13 @@ void setupTimer(){
 //  setTestTimer();
 }
 
-// Speicher -------------------------------------------
-void lesensenden(uint8_t i){
-  if(i == 1)
-    digitalWrite(D1, HIGH);
-  else
-    digitalWrite(D1, LOW);
+// Venus -------------------------------------------
+void senden(){
+  digitalWrite(D1, HIGH);
+}
+
+void lesen(){
+  digitalWrite(D1, LOW);
 }
 
 void neueDaten(){
@@ -445,7 +447,7 @@ void logEintrag(const char *s){
 }
 
 void setupVenus(){
-   venus.callbackLesenSenden(lesensenden);
+   venus.callbackLesenSenden(lesen, senden);
    venus.callbackNeueDaten(neueDaten);
    venus.callbackLogeintrag(logEintrag);
    generiereJson(venus.getDaten());

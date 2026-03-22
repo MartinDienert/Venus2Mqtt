@@ -25,27 +25,21 @@ struct Daten{
 class Venus{                     // Class Declaration
     protected:
         using LesenSenden = void (*)(uint8_t);
-        using Schreiben = void (*)(byte *, int);
-        Schreiben schreiben = nullptr;
         using NeueDaten = void (*)();
         NeueDaten neueDaten = nullptr;
         using Logeintrag = void (*)(const char *);
         Logeintrag logeintrag = nullptr;
 
     public:
-        static LesenSenden lesensenden;
         Venus(int id, Stream &serial);  // Constructor
-        void callbackLesenSenden(LesenSenden);
-        void callbackSchreiben(Schreiben);
+        void callbackLesenSenden(void (*)(), void (*)());
         void callbackNeueDaten(NeueDaten);
         void callbackLogeintrag(Logeintrag);
         void run();
         Daten getDaten();
 
     private:
-        ModbusMaster node;
-        static void preTransmission();
-        static void postTransmission();
+        ModbusMaster modbusMaster;
         void pollen();
         Daten daten;
         // ------ Timer -------

@@ -1,0 +1,136 @@
+body{
+    text-align:center;
+    font-family:verdana,sans-serif;
+    background:#e7e7e7;
+}
+div.div0{
+    text-align:center;
+    font-size:1.1em;
+    display:inline-block;
+    color:#000000;
+    width:340px;
+}
+div.div1{
+    font-weight:bold;
+    display:flex;
+    padding:5px;
+}
+div.div2{
+    padding:7px 0px 7px 0px;
+}
+div.div3{
+    padding-top:20px;
+}
+div.div4{
+    padding:7px 0px 7px 0px;
+    display:inline-flex;
+}
+div.field{
+    padding: 5px;
+    background:#dfdfdf;
+    border-style: solid;
+    border-color: #636363;
+    border-width: 2px;
+    border-radius: 5px;
+    text-align:left;
+}
+div.fieldlabel{
+    text-align:center;
+    margin-bottom: 5px;
+}
+.db{
+    display:block;
+}
+span.span1{
+    text-align:right;
+    font-weight:normal;
+    width:50px;
+    margin-left:auto;
+}
+span.span2{
+    width:30px;
+    text-align:center;
+    font-weight:normal;
+}
+span.span3{
+    width:210px;
+    margin-right:13px;
+}
+fieldset{
+    background:#e7e7e7;
+    border-width: 4px;
+    border-radius: 5px;
+    text-align:left;
+}
+input{
+    font-size:1.1em;
+    box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    background:#dddddd;
+    color:#000000;
+    width:100%;
+}
+input[type='checkbox']{
+    width:auto;
+}
+button{
+    border:1;
+    border-color: #005a8a;
+    border-radius:0.3rem;
+    background:#1fa3ec;
+    color:#faffff;
+    line-height:2.4rem;
+    font-size:1.2rem;
+    width:100%;
+    -webkit-transition-duration:0.4s;
+    transition-duration:0.4s;
+    cursor:pointer;
+}
+button:hover{
+    background:#005a8a;
+}
+button.zw1{
+    width:160px;
+    margin-right: 20px;
+}
+button.zw2{
+    width:160px;
+}
+.bred{
+    background:#d43535;
+    border-color: #850000;
+}
+.bred:hover{
+    background:#850000;
+}
+.bgrn{
+    background:#47c266;
+    border-color: #008822;
+}
+.bgrn:hover{
+    background:#008822;
+}
+a{
+    color:#1fa3ec;
+    text-decoration:none;
+}
+input[type="file"]{
+    display: none;
+}
+label.fu{
+    display:block;
+    border:0;
+    border-radius:0.3rem;
+    background:#e6e6e6;
+    color:#000000;
+    line-height:2.4rem;
+    font-size:1.2rem;
+    text-align:center;
+    -webkit-transition-duration:0.4s;
+    transition-duration:0.4s;
+    cursor:pointer;
+}
+label.fu:hover{
+    background:#bfbfbf;
+}

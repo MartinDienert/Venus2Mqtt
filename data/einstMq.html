@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+    <html lang='de'>
+        <head>
+            <meta charset='utf-8'>
+            <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=no'/>
+            <link rel="stylesheet" href="einst.css">
+            <title>Speicher M01 - Mqtt Einstellungen</title>
+        </head>
+        <body>
+            <div class='div0'>
+                <div>
+                    <h2>Speicher M01</h2>
+                </div>
+                <fieldset>
+                    <legend>
+                        &nbsp;MQTT-Einstellungen&nbsp;
+                    </legend>
+                    <form method='post' action='einst'>
+                        <div class='div2'>
+                            <label for="mq">MQTT</label>
+                            <input type="checkbox" id="mq" name="mq">
+                        </div>
+                        <div class='div2'>
+                            <label for="mqsp">spontan</label>
+                            <input type="checkbox" id="mqsp" name="mqsp">
+                        </div>
+                        <div class='div2'>
+                            MQTT - Server<br>
+                            <input id='mqip' placeholder='MQTT Server eingeben' name='mqip' value=''>
+                        </div>
+                        <div class='div2'>
+                            MQTT - Server Port<br>
+                            <input id='mqpo' placeholder='1883' name='mqpo' value=''>
+                        </div>
+                        <div class='div2'>
+                            MQTT - Benutzer<br>
+                            <input id='mqbe' placeholder='MQTT Benutzer eingeben' name='mqbe' value=''>
+                        </div>
+                        <div class='div2'>
+                            MQTT - Passwort<br>
+                            <input id='mqpw' type='password' placeholder='MQTT Passwort eingeben' name='mqpw' value=''>
+                        </div>
+                        <div class='div2'>
+                            MQTT - Topic<br>
+                            <input id='mqtp' placeholder='Topic eingeben' name='mqtp' value=''>
+                        </div>
+                        <div class='div2'>
+                            MQTT - Intervall<br>
+                            <input id='mqiv' placeholder='Intervall eingeben' name='mqiv' value=''>
+                        </div>
+                        <div class='div3'>
+                            <button name='save' value='mq' type='submit' class='button bgrn'>Speichern</button>
+                        </div>
+                    </form>
+                </fieldset>
+                <div class='div3'>
+                    <form id=but3 class='db' action='einst' method='post'><button>Einstellungen</button></form>
+                    <div style='text-align:right;font-size:11px;'>
+                        <hr/><a href='' target='_blank' style='color:#aaa;'>Speicher2Mqtt 0.1 von Martin Dienert</a>
+                    </div>
+                </div>
+            </div>
+        </body>
+        <script>
+            let eB=s=>document.getElementById(s);
+            function dho(){
+                let x=new XMLHttpRequest();
+                x.overrideMimeType('application/json');
+                x.open('GET','/einst.json',true);
+                x.onreadystatechange=()=>{
+                    if(x.readyState==4&&x.status==200){
+                        sD(x.responseText);
+                    }};
+                x.send();
+            }
+            function sD(t){
+                od = JSON.parse(t);
+                eB('mq').checked=od.Mqtt;
+                eB('mqsp').checked=od.MqttSp;
+                eB('mqip').value=od.MqttIp;
+                eB('mqpo').value=od.MqttPo;
+                eB('mqbe').value=od.MqttBe;
+                eB('mqpw').value=od.MqttPw;
+                eB('mqtp').value=od.MqttTp;
+                eB('mqiv').value=od.MqttIv;
+            }
+            dho();
+        </script>
+    </html>

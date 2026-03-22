@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang='de'>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
+        <title>Venus E - Hauptmenü</title>
+        <link rel='stylesheet' href='einst.css'>
+    </head>
+    <body>
+        <div class='div0'>
+            <div>
+                <h2>Venus E</h2>
+            </div>
+            <div class='div1'>Spannung:<span class='span1' id='sp'>-1</span><span class='span2'>V</span>
+            </div>
+            <div class='div1'>Ladezustand (SOC):<span class='span1' id='lz'>-1</span><span class='span2'>%</span>
+            </div>
+            <div class='div1'>Strom Akku:<span class='span1' id='s1'>-1</span><span class='span2'>A</span>
+            </div>
+            <div class='div1' id='s2d'>Strom PV:<span class='span1' id='s2'>-1</span><span class='span2'>A</span>
+            </div>
+            <div class='div1' id='tpd'>Temperatur:<span class='span1' id='tp'>-1</span><span class='span2'>°C</span>
+            </div>
+            <div class='div1' id='dtd'>Datum:<span class='span1 span3' id='dt'>-1</span>
+            </div>
+            <div class='div1' id='ztd'>Zeit:<span class='span1 span3' id='zt'>-1</span>
+            </div>
+            <div class='div1'>Laden:<span class='span1 span3' id='la'>-1</span>
+            </div>
+            <div class='div1'>Entladen:<span class='span1 span3' id='el'>-1</span>
+            </div>
+            <div class='div2'>
+            </div>
+            <div class='div4'>
+                <form id=but2 action='/' method='post'><button class='zw1' name='bef' value='lad'>Laden</button>
+                </form>
+                <form id=but2 action='/' method='post'><button class='zw2' name='bef' value='ent'>Entladen</button>
+                </form>
+            </div>
+            <div class='div2'>
+                <form id=but2 class='db' action='/' method='post'><button name='bef' value='spa'>Speicher aus</button>
+                </form>
+            </div>
+            <div class='div2'>
+                <form id=but2 class='db' action='/' method='post'><button name='bef' value='md'>mehr Daten</button>
+                </form>
+            </div>
+            <div class='div2'>
+                <form id=but1 class='db' action='einst' method='post'><button>Einstellungen</button>
+                </form>
+            </div>
+            <div class='div3'>
+                <form id=but0 class='db' action='/' method='post' onsubmit='return confirm("Wirklich neustarten?");'>
+                    <button name='rst' class='button bred'>Neustart</button>
+                </form>
+                <div style='text-align:right;font-size:11px;'>
+                    <hr/><a href='' target='_blank' style='color:#aaa;'>Venus2Mqtt 0.1 von Martin Dienert</a>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        let eB=s=>document.getElementById(s);
+        let to;
+        function dho(){
+            clearTimeout(to);
+            to=setTimeout(()=>{
+                dho();
+            },3000);
+            let x=new XMLHttpRequest();
+            x.overrideMimeType('application/json');
+            x.open('GET','/daten.json',true);
+            x.onreadystatechange=()=>{
+                if(x.readyState==4&&x.status==200){
+                    sD(x.responseText);
+                }
+            };
+            x.send();
+        }
+        function sD(t){
+            od = JSON.parse(t);
+            eB('sp').innerHTML=od.Spannung;
+            eB('lz').innerHTML=od.Ladezustand;
+            eB('s1').innerHTML=od.StromAkku;
+            eB('s2').innerHTML=od.StromPV;
+            eB('tp').innerHTML=od.Temperatur;
+            if(od.Typ=='1'){
+                eB('s2d').style.display='none';
+                eB('tpd').style.display='none';
+            }else{
+                eB('s2d').style.display='flex';
+                eB('tpd').style.display='flex';
+            }
+            eB('dt').innerHTML=od.Datum;
+            if(od.Datum=='')
+                eB('dtd').style.display='none';
+            else
+                eB('dtd').style.display='flex';
+            eB('zt').innerHTML=od.Zeit;
+            if(od.Zeit=='')
+                eB('ztd').style.display='none';
+            else
+                eB('ztd').style.display='flex';
+            eB('la').innerHTML=od.Laden;
+            eB('el').innerHTML=od.Entladen;
+        }
+        dho();
+    </script>
+</html>

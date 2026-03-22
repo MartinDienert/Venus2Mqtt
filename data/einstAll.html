@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+    <html lang='de'>
+        <head>
+            <meta charset='utf-8'>
+            <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=no'/>
+            <link rel="stylesheet" href="einst.css">
+            <title>Venus E - allgemeine Einstellungen</title>
+        </head>
+        <body>
+            <div class='div0'>
+                <div>
+                    <h2>Venus E</h2>
+                </div>
+                <div class='field'>
+                    <div class='fieldlabel'>allgemeine Einstellungen</div>
+                    <form method='post' action='einst'>
+                        <div class='div2'>
+                            <label for="ma">als Master</label>
+                            <input type="checkbox" id="ma" name="ma">
+                        </div>
+                        <div class='div2'>
+                            <label for="md">mehr Daten</label>
+                            <input type="checkbox" id="md" name="md">
+                        </div>
+                        <div class='div2'>
+                            NTZ - Server<br>
+                            <input id='ntip' placeholder='de.pool.ntp.org' name='ntip' value=''>
+                        </div>
+                        <div class='div3'>
+                            <button name='save' value='ei' type='submit' class='button bgrn'>Speichern</button>
+                        </div>
+                    </form>
+                </div>
+                <div class='div3'>
+                    <form class='db' action='einst' method='post'><button>Einstellungen</button></form>
+                    <div style='text-align:right;font-size:11px;'>
+                        <hr/><a href='' target='_blank' style='color:#aaa;'>Venus2Mqtt 0.1 von Martin Dienert</a>
+                    </div>
+                </div>
+            </div>
+        </body>
+        <script>
+            let eB=s=>document.getElementById(s);
+            function dho(){
+                let x=new XMLHttpRequest();
+                x.overrideMimeType('application/json');
+                x.open('GET','/einst.json',true);
+                x.onreadystatechange=()=>{
+                    if(x.readyState==4&&x.status==200){
+                        sD(x.responseText);
+                    }};
+                x.send();
+            }
+            function sD(t){
+                od = JSON.parse(t);
+                eB('ma').checked=od.Master;
+                eB('md').checked=od.mDaten;
+                eB('ntip').value=od.NtzIp;
+            }
+            dho();
+        </script>
+    </html>

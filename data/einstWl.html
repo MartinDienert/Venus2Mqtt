@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+    <html lang='de'>
+        <head>
+            <meta charset='utf-8'>
+            <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=no'/>
+            <link rel="stylesheet" href="einst.css">
+            <title>Speicher M01 - Wlan Einstellungen</title>
+        </head>
+        <body>
+            <div class='div0'>
+                <div>
+                    <h2>Speicher M01</h2>
+                </div>
+                <fieldset>
+                    <legend>
+                        &nbsp;WLAN-Einstellungen&nbsp;
+                    </legend>
+                    <form method='post' action='einst'>
+                        <div class='div2'>
+                            <label for="wl">WLAN</label>
+                            <input type="checkbox" id="wl" name="wl">
+                        </div>
+                        <div class='div2'>
+                            WLAN - SSID<br>
+                            <input id='id' placeholder='WLAN Netzwerk eingeben' name='ssid' value=''>
+                        </div>
+                        <div class='div2'>
+                            WLAN - Passwort<br>
+                            <input id='pw' type='password' placeholder='WLAN Passwort eingeben' name='pwd' value=''>
+                        </div>
+                        <div class='div3'>
+                            <button name='save' value='wl' type='submit' class='button bgrn'>Speichern</button>
+                        </div>
+                        </form>
+                </fieldset>
+                <div class='div3'>
+                    <form id=but3 class='db' action='einst' method='post'><button>Einstellungen</button></form>
+                    <div style='text-align:right;font-size:11px;'>
+                        <hr/><a href='' target='_blank' style='color:#aaa;'>Speicher2Mqtt 0.1 von Martin Dienert</a>
+                    </div>
+                </div>
+            </div>
+        </body>
+        <script>
+            let eB=s=>document.getElementById(s);
+            function dho(){
+                let x=new XMLHttpRequest();
+                x.overrideMimeType('application/json');
+                x.open('GET','/einst.json',true);
+                x.onreadystatechange=()=>{
+                    if(x.readyState==4&&x.status==200){
+                        sD(x.responseText);
+                    }};
+                x.send();
+            }
+            function sD(t){
+                od = JSON.parse(t);
+                eB('wl').checked=od.Wlan;
+                eB('id').value=od.SSId;
+                eB('pw').value=od.PWD;
+            }
+            dho();
+        </script>
+    </html>

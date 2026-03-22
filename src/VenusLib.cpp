@@ -2,21 +2,13 @@
 #include <ModbusMaster.h>
 
 Venus::Venus(int id, Stream &serial){
-    node.begin(id, serial);
-    node.preTransmission(preTransmission);
-    node.postTransmission(postTransmission);
+//    modbusMaster.begin(id, serial);
+    setAbfrageTimer(abfrage_Interval);
 }
 
-void Venus::preTransmission(){
-    if(lesensenden) lesensenden(1);                 // umschalten auf schreiben
-}
-
-void Venus::postTransmission(){
-    if(lesensenden) lesensenden(0);                 // umschalten auf lesen
-}
-
-void Venus::callbackLesenSenden(LesenSenden l){
-    lesensenden = l;
+void Venus::callbackLesenSenden(void (*l)(), void (*s)()){
+    modbusMaster.preTransmission(s);
+    modbusMaster.postTransmission(l);
 } 
 
 void Venus::callbackNeueDaten(NeueDaten d){
@@ -32,18 +24,17 @@ void Venus::run(){
 }
 
 void Venus::pollen(){
-  uint8_t result;
-  result = node.readHoldingRegisters(regAkkuP, 1);
-  if(result == node.ku8MBSuccess){
-    Serial.print("Vbatt: ");
-    Serial.println(node.getResponseBuffer(0x04)/100.0f);
-    Serial.print("Vload: ");
-    Serial.println(node.getResponseBuffer(0xC0)/100.0f);
-    Serial.print("Pload: ");
-    Serial.println((node.getResponseBuffer(0x0D) +
-                    node.getResponseBuffer(0x0E) << 16)/100.0f);
-  }
-
+//   uint8_t result;
+//   result = modbusMaster.readHoldingRegisters(regAkkuP, 1);
+//   if(result == modbusMaster.ku8MBSuccess){
+//     Serial.print("Vbatt: ");
+//     Serial.println(modbusMaster.getResponseBuffer(0x04)/100.0f);
+//     Serial.print("Vload: ");
+//     Serial.println(modbusMaster.getResponseBuffer(0xC0)/100.0f);
+//     Serial.print("Pload: ");
+//     Serial.println((modbusMaster.getResponseBuffer(0x0D) + (modbusMaster.getResponseBuffer(0x0E) << 16))/100.0f);
+//   }
+    if(logeintrag) logeintrag("pollen---");
 }
 
 Daten Venus::getDaten(){

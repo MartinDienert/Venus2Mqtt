@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang='de'>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
+        <link rel="stylesheet" href="einst.css">
+        <title>Speicher M01 - OTA Update</title>
+    </head>
+    <body>
+        <div class='div0'>
+            <div>
+                <h2>Speicher M01</h2>
+            </div>
+            <fieldset>
+                <legend>
+                    &nbsp;Firmware&nbsp;
+                </legend>
+                <form method='POST' action='update' enctype='multipart/form-data'>
+                    <div class='div2'>
+                        <input id='fu1' type='file' accept='.bin,.bin.gz' name='firmware'>
+                        <label for='fu1' class="fu">
+                            <span>Datei laden</span>
+                        </label>
+                    </div>
+                    <div class='div2'>
+                        <button value='Update Firmware' type='submit' class='button bgrn'>Update Firmware</button>
+                    </div>
+                </form>
+            </fieldset>
+            <div class='div2'></div>
+            <fieldset>
+                <legend>
+                    &nbsp;Dateisystem&nbsp;
+                </legend>
+                <form method='POST' action='update' enctype='multipart/form-data'>
+                    <div class='div2'>
+                        <input id='fu2' type='file' accept='.bin,.bin.gz' name='filesystem'>
+                        <label for='fu2' class='fu'>
+                            <span>Datei laden</span>
+                        </label>
+                    </div>
+                    <div class='div5'>
+                        Achtung!<br>
+                        Alle Einstellungen müssen<br>neu eingegeben werden.
+                    </div>
+                    <div class='div2'>
+                        <button value='Update FileSystem' type='submit' class='button bgrn'>Update Dateisystem</button>
+                    </div>
+                </form>
+            </fieldset>
+            <div class='div2'></div>
+            <fieldset>
+                <legend>
+                    &nbsp;Dateien&nbsp;
+                </legend>
+                <form method='POST' action='upload' enctype='multipart/form-data'>
+                    <div class='div2'>
+                        <input id='ul' type='file' accept='.json,.html' name='datei'>
+                        <label for='ul' class="fu">
+                            <span>Datei laden<sladen</span>
+                        </label>
+                    </div>
+                    <div class='div2'>
+                        <button value='datei' type='submit' class='button bgrn'>Datei hochladen</button>
+                    </div>
+                </form>
+            </fieldset>
+            <div class='div3'>
+                <form id=but3 class='db' action='einst' method='post'><button>Einstellungen</button></form>
+            </div>
+            <div class='div2'>
+                <form class='db' action='/' method='post'><button>Hauptfenster</button></form>
+                <div style='text-align:right;font-size:11px;'>
+                    <hr/><a href='' target='_blank' style='color:#aaa;'>Speicher2Mqtt 0.1 von Martin Dienert</a>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        let eB=s=>document.getElementById(s);
+        function fUl(e){
+            if(this.files && this.files.length > 0){
+                var label = this.nextElementSibling;
+                label.innerHTML = this.files[0].name;
+            }
+        }
+        eB('fu1').addEventListener('change', fUl);
+        eB('fu2').addEventListener('change', fUl);
+    </script>
+</html>
