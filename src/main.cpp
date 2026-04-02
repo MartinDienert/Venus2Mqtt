@@ -60,7 +60,7 @@ void addLog(const char *lo){
     strcat(log1, "\r\n");
     pos += lg;
   }
-  Serial.println(log1);
+//  Serial.println(log1);
 }
 
 char* getLog(){
@@ -70,10 +70,11 @@ char* getLog(){
 // Json -----------------------------------------
 char json[200] = {'\0'};
 
- void generiereJson(Daten daten){
-//   char datum[36];
-//   char zeit[36];
-//   getDatumZeitStr(datum, zeit);
+// void generiereJson(Daten daten){
+ void generiereJson(){
+   char datum[36];
+   char zeit[36];
+   getDatumZeitStr(datum, zeit);
 //   char sp[5] = {'\0'};
 //   dtostrf(daten.spannung, 3, 1, sp);
 //   char st[5] = {'\0'};
@@ -92,11 +93,21 @@ char json[200] = {'\0'};
 //       datum, zeit, (daten.laden)? "\"ein\"": "\"aus\"", (daten.entladen)? "\"ein\"": "\"aus\"");
 //   strcat(json, s);
 //   strcat(json, "}");
+   sprintf(json, "{\"Netz_P\":%s,\"Batt_P\":%s,\"Batt_U\":%s,\"Batt_Soc\":%s,\"Batt_Temperatur\":%s",
+       "-2500", "-567", "53.34", "55", "33");
+   char s[150] = {'\0'};
+   sprintf(s, ",\"Tag_E_geladen\":%s,\"Tag_E_entladen\":%s,\"Datum\":\"%s\",\"Zeit\":\"%s\"",
+       "4.23", "0.34", datum, zeit);
+   strcat(json, s);
+   strcat(json, "}");
+
  }
 
-char* getJson(){
-  return json;
-}
+//char* getJson(){
+//  Daten daten;
+//  generiereJson();
+//  return json;
+//}
 
 // Wifi Client -----------------------------------------
 boolean apModus = false;
@@ -144,11 +155,12 @@ void dateiSenden(const char *dn, const char *typ = "text/html"){
 void fehlerseite(){
   server.send(404, "text/plain", "Link wurde nicht gefunden!");
 }
+
 void hauptseite(){
   dateiSenden("/index.html");
 }
 
-void hauptseiteBef(){
+/*void hauptseiteBef(){
    if(server.hasArg("bef")){
   //   if(server.arg("bef").equals("lad")){
   //     speicher.sendeTel(telLa, true);
@@ -168,7 +180,7 @@ void hauptseiteBef(){
   }else{
     dateiSenden("/index.html");
   }
-}
+}*/
 
 void einstellungsmenue(){
   dateiSenden("/einst.html");
@@ -191,12 +203,20 @@ void einstellungOt(){
   dateiSenden("/einstOt.html");
 }
 
-void einstellungCSS(){
+void einstellungDlUl(){
+  dateiSenden("/einstDlUl.html");
+}
+
+void scriptDatei(){
+  dateiSenden("/script.js", "application/javascript");
+}
+
+void cssDatei(){
   dateiSenden("/einst.css", "text/css");
 }
 
 void sendeDaten(){
-  server.send(200, "application/json", getJson());
+  server.send(200, "application/json", venus.json);
 }
 
 void sendeEinst(){
@@ -231,15 +251,15 @@ void logdaten(){
 }
 
 File datei; 
-void upload(){
+void upload(char* d, boolean l){
   HTTPUpload& upload = server.upload();
-  Serial.print("Upload Status:"); Serial.println(upload.status);
+//  Serial.print("Upload Status:"); Serial.println(upload.status);
   if(upload.status == UPLOAD_FILE_START){
-    String filename = upload.filename;
-    Serial.print("Upload File Name: "); Serial.println(filename);
+    String filename = (d && d[0] != '\0')? d: upload.filename;
+//    String filename = upload.filename;
+//    Serial.print("Upload File Name: "); Serial.println(filename);
     LittleFS.remove(filename);
     datei = LittleFS.open(filename, "w");
-    filename = String();
   }
   else if(upload.status == UPLOAD_FILE_WRITE){
     if(datei) datei.write(upload.buf, upload.currentSize);
@@ -247,28 +267,41 @@ void upload(){
   else if(upload.status == UPLOAD_FILE_END){
     if(datei){
       datei.close();
-      Serial.print("Upload Size: "); Serial.println(upload.totalSize);
+//      Serial.print("Upload Size: "); Serial.println(upload.totalSize);
+      if(l) einst.alle_einst_laden();
     }else{
-      Serial.println("Upload fehlgeschlagen.");
+//      Serial.println("Upload fehlgeschlagen.");
     }
   }
+}
+
+void dateiUpload(){
+  upload(NULL, false);
+}
+
+void einstUpload(){
+  char s[] = "einst.json";
+  upload(s, true);
 }
 
 void setupWS(){
   server.onNotFound(fehlerseite);
   server.on("/",HTTP_GET, hauptseite);
-  server.on("/",HTTP_POST, hauptseiteBef);
+  server.on("/",HTTP_POST, hauptseite);
   server.on("/einst",HTTP_POST, einstellungsmenue);
   server.on("/einstAll",HTTP_POST, einstellungAll);
   server.on("/einstWl",HTTP_POST, einstellungWl);
   server.on("/einstMq",HTTP_POST, einstellungMq);
   server.on("/einstOt",HTTP_POST, einstellungOt);
-  server.on("/einst.css", einstellungCSS);
+  server.on("/einstDlUl",HTTP_POST, einstellungDlUl);
+  server.on("/script.js", scriptDatei);
+  server.on("/einst.css", cssDatei);
   server.on("/daten.json", sendeDaten);
   server.on("/einst.json", sendeEinst);
   server.on("/befehle",HTTP_GET, befehle);
   server.on("/log", logdaten);
-  server.on("/upload",HTTP_POST, einstellungOt, upload);
+  server.on("/upload",HTTP_POST, einstellungOt, dateiUpload);
+  server.on("/uploadEinst",HTTP_POST, einstellungDlUl, einstUpload);
   server.begin();
 }
 
@@ -332,7 +365,7 @@ void mqttPub(){
       reconnectMqtt();
     }
     if(mqttClient.connected()){
-      mqttClient.publish((einst.mqttTp + "/Daten").c_str(), getJson());
+      mqttClient.publish((einst.mqttTp + "/Daten").c_str(), venus.json);
     }
   }
 //  addLog("Mqtt publish.");
@@ -407,8 +440,8 @@ void timerRun(){
 }
 
 void setMqttPubTimer(){
-  if(einst.mqttIv != ""){
-    mqttPubInterval = einst.mqttIv.toInt() * 1000;
+  if(einst.mqttIv != 0){
+    mqttPubInterval = einst.mqttIv * 1000;
   }
   if(einst.mqtt && mqttPubInterval > 0){
     mqttPubZeit = millis();
@@ -438,7 +471,7 @@ void lesen(){
 }
 
 void neueDaten(){
-  generiereJson(venus.getDaten());
+//  generiereJson(venus.getDaten());
   mqttPubSpontan();
 }
 
@@ -449,8 +482,9 @@ void logEintrag(const char *s){
 void setupVenus(){
    venus.callbackLesenSenden(lesen, senden);
    venus.callbackNeueDaten(neueDaten);
+   venus.callbackDatumZeit(getDatumZeitStr);
    venus.callbackLogeintrag(logEintrag);
-   generiereJson(venus.getDaten());
+//   generiereJson(venus.getDaten());
 }
 
 // OTA Update ----------------------------------------
@@ -463,7 +497,7 @@ void setup(){
   pinMode(D1, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(D1, LOW);
-  Serial.setTimeout(40);
+//  Serial.setTimeout(40);
   Serial.begin(115200, SERIAL_8N1);
   if(LittleFS.begin()){
     einst.alle_einst_laden();
@@ -487,6 +521,7 @@ void setup(){
 void loop(){
   digitalWrite(LED_BUILTIN,LOW);      // LED leuchtet
   timerRun();
+//  Serial.println("!!!!!!!!!!!!");
   yield();
   venus.run();
   yield();
@@ -495,5 +530,5 @@ void loop(){
   mqttClient.loop();
   yield();
   digitalWrite(LED_BUILTIN,HIGH);     // LED ist in der Pause aus
-  delay(50);  
+  delay(100);
 }

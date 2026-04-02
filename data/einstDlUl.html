@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang='de'>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
+        <link rel="stylesheet" href="einst.css">
+        <title>Venus E - Einstellungen down-, uploaden</title>
+    </head>
+    <body>
+        <div class='hauptseite'>
+            <div>
+                <h2>Venus E</h2>
+            </div>
+            <div class='field'>
+                <div class='fieldlabel'>Einstellungen</div>
+                <div class='taste'>
+                    <div class='download'>
+                    <a href="einst.json" download="Venus_E_Einst.json" class="download">Download</a>
+                    </div>
+                </div>
+                <form method='POST' action='uploadEinst' enctype='multipart/form-data'>
+                    <div class='taste'>
+                        <input id='eul' type='file' accept='.json,.html' name='datei'>
+                        <label for='eul' class="fu">
+                            <span>Datei laden</span>
+                        </label>
+                    </div>
+                    <div class='taste'>
+                        <button value='datei' type='submit' class='button bgrn'>Upload</button>
+                    </div>
+                </form>
+            </div>
+            <div class='taste abstand'>
+                <form id=but3 class='db' action='einst' method='post'><button>Einstellungen</button></form>
+            </div>
+            <div class='taste'>
+                <form class='db' action='/' method='post'><button>Hauptfenster</button></form>
+            </div>
+            <div class='imp'>
+                <hr/>
+                <a href='https://github.com/MartinDienert/Venus2Mqtt' target='_blank'>Venus2Mqtt 0.1 von Martin Dienert</a>
+            </div>
+        </div>
+    </body>
+    <script>
+        let eB=s=>document.getElementById(s);
+        function fUl(e){
+            if(this.files && this.files.length > 0){
+                var label = this.nextElementSibling;
+                label.innerHTML = this.files[0].name;
+            }
+        }
+        eB('eul').addEventListener('change', fUl);
+    </script>
+</html>

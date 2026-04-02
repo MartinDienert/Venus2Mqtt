@@ -1,0 +1,37 @@
+// https://onecompiler.com/cpp/44hxy52qz
+
+#include <iostream>
+using namespace std;
+
+const int maxReg = 10;
+
+struct Reg{
+    int reg;
+    float faktor;
+    char name[10];
+};
+
+const Reg regArray[] = {{30001, 1, "Batt_P"}, {30002, 1, "Test1"}, {30004, 1, "Test2"}, {30006, 1, "Netz_P"}, {30100, 0.01, "Batt_U"}, {30101, 0.01, "Batt_I"}, {35000, 0.1, "Temp"}, {37005, 1, "SCO"}};
+
+int main() 
+{
+    int arrayGr = sizeof(regArray) / sizeof(regArray[0]);
+
+    cout << "Hello, World! " << arrayGr << "\n";
+    for(int i = 0; i < arrayGr; i++){
+        int ii = 0;
+        while(i + ii + 1 < arrayGr && regArray[i + ii + 1].reg - regArray[i].reg < maxReg)
+          ii++;
+        cout << "Reg1: " << i << ", Reg2: " << ii + i << ", Anzahl: " << ii + 1 << "\n";
+        int x = 123456;
+        printf("Reg: %d, Wert: %d\n", regArray[i].reg, x);
+        for(int iii = 0; iii <= ii; iii++)
+          cout << regArray[i + iii].name << ", ";
+        cout << "\n";
+//        i--;
+        i += ii;
+    }
+    
+  return 0;
+
+}
