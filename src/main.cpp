@@ -251,7 +251,7 @@ void logdaten(){
 }
 
 File datei; 
-void upload(char* d, boolean l){
+void upload(const char* d, boolean l){
   HTTPUpload& upload = server.upload();
 //  Serial.print("Upload Status:"); Serial.println(upload.status);
   if(upload.status == UPLOAD_FILE_START){
@@ -280,8 +280,7 @@ void dateiUpload(){
 }
 
 void einstUpload(){
-  char s[] = "einst.json";
-  upload(s, true);
+  upload("einst.json", true);
 }
 
 void setupWS(){

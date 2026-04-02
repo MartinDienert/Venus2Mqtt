@@ -56,12 +56,9 @@ void Venus::pollen(){
     for(int i = 0; i < arrayGr; i++){
         int ii = 0;
         while(i + ii + 1 < arrayGr && reg[i + ii + 1].typ == reg[i + ii].typ && reg[i + ii + 1].reg - reg[i + ii + 1].typ == reg[i + ii].reg && ii <= maxReg)
-//        while(i + ii + 1 < arrayGr && reg[i + ii + 1].reg - 1 == reg16[i + ii].reg && ii <= maxReg)
             ii++;
         int gr = reg[i].typ;
-        result = modbusMaster.readHoldingRegisters(reg[i].reg, ii + 1 * gr);
-//        Serial.print("Reg: ");Serial.print(reg16[i].reg);Serial.print(", Anzahl: ");Serial.print(ii + 1);
-//        delay(100);
+        result = modbusMaster.readHoldingRegisters(reg[i].reg, (ii + 1) * gr);
         if(result == modbusMaster.ku8MBSuccess){
             for(int iii = 0; iii <= ii; iii++){
                 int w = modbusMaster.getResponseBuffer(iii * gr);
