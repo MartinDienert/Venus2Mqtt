@@ -1,0 +1,13 @@
+{
+    "reg":[
+        {"reg":30001, "typ":1, "faktor":1, "name":"Batt_P", "einheit":"W"},
+        {"reg":30006, "typ":1, "faktor":1, "name":"Netz_P", "einheit":"W"},
+        {"reg":30100, "typ":1, "faktor":0.01, "name":"Batt_U", "einheit":"V"},
+        {"reg":35000, "typ":1, "faktor":0.1, "name":"Batt_T", "einheit":"°C"},
+        {"reg":37005, "typ":1, "faktor":1, "name":"Batt_Soc", "einheit":"%"},
+        {"reg":33000, "typ":2, "faktor":0.01, "name":"Ges_E_gel", "einheit":"kWh"},
+        {"reg":33002, "typ":2, "faktor":0.01, "name":"Ges_E_ent", "einheit":"kWh"},
+        {"reg":33004, "typ":2, "faktor":0.01, "name":"Tag_E_gel", "einheit":"kWh"},
+        {"reg":33006, "typ":2, "faktor":0.01, "name":"Tag_E_ent", "einheit":"kWh"}
+    ]
+}

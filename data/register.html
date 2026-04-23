@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang='de'>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
+        <link rel="stylesheet" href="einst.css">
+        <title>Venus E - Register</title>
+    </head>
+    <body>
+        <div class='hauptseite'>
+            <div>
+                <h2>Venus E</h2>
+            </div>
+            <div class='field'>
+                <div class='taste'>
+                    <div class="flex"><label for='reg'>Register</label><span class="link"><a href='regTab.html' target='_blank'>Registertabelle</a></span></div>
+                    <input id='reg' type='number' name='reg' value=''>
+                    <label for='reg32'>32 Bit Register</label>
+                    <input type='checkbox' id='reg32' name='reg32'>
+                </div>
+                <div class='taste'>
+                    <label for='wert'>Wert</label>
+                    <input id='wert' name='wert' value=''>
+                </div>
+                <div class='taste'>
+                    <button type='button' onclick='get()' class='button bgrn'>lesen</button>
+                </div>
+                <div class='taste'>
+                    <button type='button' onclick='set()' name='taste' value='set' type='submit' class='button bred'>schreiben</button>
+                </div>
+            </div>
+            <div class='taste'></div>
+            <div class='taste abstand'>
+                <form class='db' action='/' method='post'><button>Hauptfenster</button></form>
+            </div>
+            <div class='imp'>
+                <hr/>
+                <a class='projekt' href='https://github.com/MartinDienert/Venus2Mqtt' target='_blank'>Venus2Mqtt 0.1 von Martin Dienert</a>
+            </div>
+        </div>
+    </body>
+    <script>
+        let eB=s=>document.getElementById(s);
+        let r = eB('reg');
+        let w = eB('wert');
+        function dho(datei){
+            let x=new XMLHttpRequest();
+            x.overrideMimeType('application/json');
+            x.open('GET','/' + datei,true);
+            x.onreadystatechange=()=>{
+                if(x.readyState==4&&x.status==200){
+                    sD(x.responseText);
+                }
+            };
+            x.send();
+        }
+        function sD(t){
+            od = JSON.parse(t);
+            if(od.hasOwnProperty("fehler"))
+                w.value = od["fehler"];
+            else if(od.hasOwnProperty(r.value))
+                w.value = od[r.value];
+        }
+        function get(){
+            if(r.value != ""){
+                let s = 'getReg?reg=' + r.value;
+                if(eB('reg32').checked)
+                    s += '&reg32=on';
+                dho(s);
+            }
+        }
+        function set(){
+            if(r.value != ""){
+                let s = 'setReg?reg=' + r.value + '&wert=' + w.value;
+                if(eB('reg32').checked)
+                    s += '&reg32=on';
+                dho(s);
+            }
+        }
+        get();
+       </script>
+</html>

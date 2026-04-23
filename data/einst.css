@@ -50,8 +50,12 @@ div.field{
     text-align:left;
 }
 div.fieldlabel{
+    display:block;
     text-align:center;
     margin-bottom: 5px;
+}
+div.flex{
+    display: flex;
 }
 form.db{
     display:block;
@@ -76,6 +80,11 @@ span.einheit2{
 }
 span.wert2{
     margin-right:13px;
+}
+span.link{
+    text-align: right;
+    font-size: 80%;
+    margin: 2px 5px 0 auto;
 }
 fieldset{
     background:#e7e7e7;
@@ -136,7 +145,7 @@ button.zw2{
 .bgrn:hover{
     background:#008822;
 }
-a{
+a.projekt{
     color:#adadad;
     text-decoration:none;
 }

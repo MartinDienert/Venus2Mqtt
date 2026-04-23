@@ -160,28 +160,6 @@ void hauptseite(){
   dateiSenden("/index.html");
 }
 
-/*void hauptseiteBef(){
-   if(server.hasArg("bef")){
-  //   if(server.arg("bef").equals("lad")){
-  //     speicher.sendeTel(telLa, true);
-  //   }else if(server.arg("bef").equals("ent")){
-  //     speicher.sendeTel(telEl, true);
-  //   }else if(server.arg("bef").equals("spa")){
-  //     speicher.sendeTel(telSa);
-  //   }else if(server.arg("bef").equals("md")){
-  //     speicher.sendeTel(telMD);
-  //   }
-  //   delay(100);
-  //   dateiSenden("/index.html");
-  }else if(server.hasArg("rst")){
-    server.client().stop();
-    delay(100);
-    ESP.restart();
-  }else{
-    dateiSenden("/index.html");
-  }
-}*/
-
 void einstellungsmenue(){
   dateiSenden("/einst.html");
   einst.setEinst();
@@ -207,6 +185,36 @@ void einstellungDlUl(){
   dateiSenden("/einstDlUl.html");
 }
 
+void regSeite(){
+  dateiSenden("/register.html");
+}
+
+void setReg(){
+  if(server.hasArg("reg") && server.hasArg("wert")){
+    int r = atoi(server.arg("reg").c_str());
+    int w = atoi(server.arg("wert").c_str());
+    boolean r32 = (server.hasArg("reg32") && server.arg("reg32").equals("on"))? true: false;
+    if(r > 0){
+      venus.setReg(r, r32, w);
+      server.send(200, "application/json", venus.getRegJson(r, r32));
+    }else{
+      addLog("Fehler beim Register setzen.");
+    }
+  }
+}
+
+void getReg(){
+  if(server.hasArg("reg")){
+    int r = atoi(server.arg("reg").c_str());
+    boolean r32 = (server.hasArg("reg32") && server.arg("reg32").equals("on"))? true: false;
+    if(r > 0){
+      server.send(200, "application/json", venus.getRegJson(r, r32));
+    }else{
+      addLog("Fehler bei der Registerabfrage.");
+    }
+  }
+}
+
 void scriptDatei(){
   dateiSenden("/script.js", "application/javascript");
 }
@@ -221,6 +229,18 @@ void sendeDaten(){
 
 void sendeEinst(){
   server.send(200, "application/json", einst.json);
+}
+
+void sendeReg(){
+  dateiSenden("/register.json", "application/json");
+}
+
+void sendeRegTab(){
+  dateiSenden("/regTab.html");
+}
+
+void logdaten(){
+  server.send(200, "text/plain", getLog());
 }
 
 void befehle(){
@@ -244,14 +264,16 @@ void befehle(){
   //     speicher.sendeTel(telMD);
   //   }
   // }
-}
-
-void logdaten(){
-  server.send(200, "text/plain", getLog());
+  // }else if(server.hasArg("rst")){
+  //   server.client().stop();
+  //   delay(100);
+  //   ESP.restart();
+  // }
 }
 
 File datei; 
-void upload(const char* d, boolean l){
+boolean upload(const char* d){
+  boolean erg = false;
   HTTPUpload& upload = server.upload();
 //  Serial.print("Upload Status:"); Serial.println(upload.status);
   if(upload.status == UPLOAD_FILE_START){
@@ -260,27 +282,32 @@ void upload(const char* d, boolean l){
 //    Serial.print("Upload File Name: "); Serial.println(filename);
     LittleFS.remove(filename);
     datei = LittleFS.open(filename, "w");
-  }
-  else if(upload.status == UPLOAD_FILE_WRITE){
+  }else if(upload.status == UPLOAD_FILE_WRITE){
     if(datei) datei.write(upload.buf, upload.currentSize);
-  } 
-  else if(upload.status == UPLOAD_FILE_END){
+  }else if(upload.status == UPLOAD_FILE_END){
     if(datei){
       datei.close();
 //      Serial.print("Upload Size: "); Serial.println(upload.totalSize);
-      if(l) einst.alle_einst_laden();
+      erg = true;
     }else{
 //      Serial.println("Upload fehlgeschlagen.");
     }
   }
+  return erg;
 }
 
 void dateiUpload(){
-  upload(NULL, false);
+  upload(NULL);
 }
 
 void einstUpload(){
-  upload("einst.json", true);
+  if(upload("einst.json"))
+    einst.alle_einst_laden();
+}
+
+void regUpload(){
+  if(upload("register.json"))
+    venus.genRegister();
 }
 
 void setupWS(){
@@ -293,41 +320,69 @@ void setupWS(){
   server.on("/einstMq",HTTP_POST, einstellungMq);
   server.on("/einstOt",HTTP_POST, einstellungOt);
   server.on("/einstDlUl",HTTP_POST, einstellungDlUl);
+  server.on("/register",HTTP_POST, regSeite);
+  server.on("/setReg", setReg);
+  server.on("/getReg", getReg);
   server.on("/script.js", scriptDatei);
   server.on("/einst.css", cssDatei);
   server.on("/daten.json", sendeDaten);
   server.on("/einst.json", sendeEinst);
-  server.on("/befehle",HTTP_GET, befehle);
+  server.on("/register.json", sendeReg);
+  server.on("/regTab.html", sendeRegTab);
   server.on("/log", logdaten);
+  server.on("/befehle",HTTP_GET, befehle);
   server.on("/upload",HTTP_POST, einstellungOt, dateiUpload);
   server.on("/uploadEinst",HTTP_POST, einstellungDlUl, einstUpload);
+  server.on("/uploadReg",HTTP_POST, einstellungDlUl, regUpload);
   server.begin();
 }
 
 // Mqtt Client -------------------------------------------
+void setWert(char* s, int* r, boolean* r32, int* w){
+    char* s1 = strtok(s, "=");
+    char* s2 = strtok(NULL, "=");
+    if(s1 != NULL && s2 != NULL){
+        if(strcmp(s1, "reg") == 0)
+            *r = atoi(s2);
+        else if(strcmp(s1, "reg32") == 0)
+            *r32 = strcmp(s2, "on") == 0;
+        else if(strcmp(s1, "wert") == 0)
+            *w = atoi(s2);
+    }
+}
+
 void callback(char* topic, byte* payload, unsigned int length){
   int i = strlen(einst.mqttTp.c_str());
   if(strncmp(topic, einst.mqttTp.c_str(), i) == 0 && strcmp(topic + i, "/Befehl") == 0){
     char pl[length + 1];
     pl[length] = '\0';
     memcpy(pl, payload, length);
-    // if(strcmp(pl, "laden") == 0){
-    //   speicher.sendeTel(telLa, true);
-    // }else if(strcmp(pl, "entladen") == 0){
-    //   speicher.sendeTel(telEl, true);
-    // }else if(strcmp(pl, "speicher_aus") == 0){
-    //   speicher.sendeTel(telSa);
-    // }else if(strcmp(pl, "laden_aus") == 0){
-    //   speicher.sendeTel(telLa);
-    // }else if(strcmp(pl, "laden_ein") == 0){
-    //   speicher.sendeTel(telLa + 1);
-    // }else if(strcmp(pl, "entladen_aus") == 0){
-    //   speicher.sendeTel(telEl);
-    // }else if(strcmp(pl, "entladen_ein") == 0){
-    //   speicher.sendeTel(telEl + 1);
-    // }else if(strcmp(pl, "mehr_daten") == 0){
-    //   speicher.sendeTel(telMD);
-    // }
+//    if(strcmp(pl, "abc") == 0) ...
+//    else
+    char* b = strtok(pl, "?");
+    if(b != NULL){
+      int r = 0;
+      int w = 0;
+      boolean r32 = false;
+      char* s[3] = {NULL, NULL, NULL};
+      s[0] = strtok(NULL, "&");
+      int i = 0;
+      while(i < 3 && s[i] != NULL){
+          i++;
+          s[i] = strtok(NULL, "&");
+      }
+      i = 0;
+      while(i < 3 && s[i] != NULL){
+          setWert(s[i], &r, &r32, &w);
+          i++;
+      }
+      if(strcmp(b, "getReg") == 0)
+        mqttPub("Register", venus.getRegJson(r, r32));
+      else if(strcmp(b, "setReg") == 0){
+        venus.setReg(r, r32, w);
+        mqttPub("Register", venus.getRegJson(r, r32));
+      }
+    }
   }
 }
 
@@ -358,16 +413,20 @@ void reconnectMqtt(){
   }
 }
 
-void mqttPub(){
+void mqttPub(String topic, char* daten){
   if(!apModus){
     if(!mqttClient.connected()){
       reconnectMqtt();
     }
     if(mqttClient.connected()){
-      mqttClient.publish((einst.mqttTp + "/Daten").c_str(), venus.json);
+      mqttClient.publish((einst.mqttTp + "/" + topic).c_str(), daten);
     }
   }
 //  addLog("Mqtt publish.");
+}
+
+void mqttPub(){
+  mqttPub("Daten", venus.json);
 }
 
 void mqttPubSpontan(){
@@ -470,7 +529,6 @@ void lesen(){
 }
 
 void neueDaten(){
-//  generiereJson(venus.getDaten());
   mqttPubSpontan();
 }
 
@@ -483,7 +541,7 @@ void setupVenus(){
    venus.callbackNeueDaten(neueDaten);
    venus.callbackDatumZeit(getDatumZeitStr);
    venus.callbackLogeintrag(logEintrag);
-//   generiereJson(venus.getDaten());
+   venus.genRegister();
 }
 
 // OTA Update ----------------------------------------
@@ -520,7 +578,6 @@ void setup(){
 void loop(){
   digitalWrite(LED_BUILTIN,LOW);      // LED leuchtet
   timerRun();
-//  Serial.println("!!!!!!!!!!!!");
   yield();
   venus.run();
   yield();

@@ -20,8 +20,28 @@
                 </div>
                 <form method='POST' action='uploadEinst' enctype='multipart/form-data'>
                     <div class='taste'>
-                        <input id='eul' type='file' accept='.json,.html' name='datei'>
+                        <input id='eul' type='file' accept='.json' name='datei'>
                         <label for='eul' class="fu">
+                            <span>Datei laden</span>
+                        </label>
+                    </div>
+                    <div class='taste'>
+                        <button value='datei' type='submit' class='button bgrn'>Upload</button>
+                    </div>
+                </form>
+            </div>
+            <div class='taste'></div>
+            <div class='field'>
+                <div class='fieldlabel'>Register</div>
+                <div class='taste'>
+                    <div class='download'>
+                    <a href="register.json" download="Venus_E_Reg.json" class="download">Download</a>
+                    </div>
+                </div>
+                <form method='POST' action='uploadReg' enctype='multipart/form-data'>
+                    <div class='taste'>
+                        <input id='rul' type='file' accept='.json' name='datei'>
+                        <label for='rul' class="fu">
                             <span>Datei laden</span>
                         </label>
                     </div>
@@ -38,7 +58,7 @@
             </div>
             <div class='imp'>
                 <hr/>
-                <a href='https://github.com/MartinDienert/Venus2Mqtt' target='_blank'>Venus2Mqtt 0.1 von Martin Dienert</a>
+                <a class='projekt' href='https://github.com/MartinDienert/Venus2Mqtt' target='_blank'>Venus2Mqtt 0.1 von Martin Dienert</a>
             </div>
         </div>
     </body>
@@ -51,5 +71,6 @@
             }
         }
         eB('eul').addEventListener('change', fUl);
+        eB('rul').addEventListener('change', fUl);
     </script>
 </html>
