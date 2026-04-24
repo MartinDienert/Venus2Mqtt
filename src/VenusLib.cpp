@@ -48,8 +48,6 @@ void Venus::genRegister(){
     arrayGr = 0;
     JsonDocument doc;
     String s = json_lesen("register.json");
-//        Serial.print("Json: ");
-//        Serial.println(s);
     if(s.length() == 0){
         logeintrag("Fehler beim lesen der register.json.");
         return;
@@ -57,8 +55,6 @@ void Venus::genRegister(){
     DeserializationError error = deserializeJson(doc, s.c_str());
     if(error){
         logeintrag("Fehler beim deserialisieren der register.json.");
-//        Serial.print("Fehler: ");
-//        Serial.println(error.f_str());
         return;
     }
     JsonArray ja = doc["reg"];
@@ -117,18 +113,8 @@ char* Venus::getRegJson(int r, boolean r32){
 }
 
 int Venus::getReg(int r, boolean r32){
-//    uint8_t modbusFehler;
     int w = 0;
     getRegs(r, r32, 1, 0, &w);
-/*     modbusFehler = modbusMaster.readHoldingRegisters(r, (r32)? 2: 1);
-    if(modbusFehler == modbusMaster.ku8MBSuccess){
-        w = modbusMaster.getResponseBuffer(0);
-        if(r32){
-            w <<= 16;
-            w += modbusMaster.getResponseBuffer(1);
-        }
-    }
- */
     return w;
 }
 
@@ -176,46 +162,15 @@ void Venus::genJson(){
 }
 
 void Venus::pollen(){
-/*     for(int i = 0; i < arrayGr; i++){
-        Serial.print("Register: ");
-        Serial.print(i);
-        Serial.print(", ");
-        Serial.print(reg[i].name);
-        Serial.print(", ");
-        Serial.print(reg[i].reg);
-        Serial.print(", ");
-        Serial.print(reg[i].typ);
-        Serial.print(", ");
-        Serial.print(reg[i].faktor);
-        Serial.print(", Wert: ");
-        Serial.println(werte[i]);
-    }
- */
 //    long z = millis();
 //    char s[50];
     boolean geaendert = false;
-//    uint8_t modbusFehler;
     for(int i = 0; i < arrayGr; i++){
         int ii = 0;
         while(i + ii + 1 < arrayGr && reg[i + ii + 1].typ == reg[i + ii].typ && reg[i + ii + 1].reg - reg[i + ii + 1].typ == reg[i + ii].reg && ii <= maxReg)
             ii++;
-//        int gr = reg[i].typ;
         if(getRegs(reg[i].reg, (reg[i].typ == 2)? true: false, ii + 1, i, werte))
             geaendert = true;
-/*         modbusFehler = modbusMaster.readHoldingRegisters(reg[i].reg, (ii + 1) * gr);
-        if(modbusFehler == modbusMaster.ku8MBSuccess){
-            for(int iii = 0; iii <= ii; iii++){
-                int w = modbusMaster.getResponseBuffer(iii * gr);
-                if(gr == 2){
-                    w <<= 16;
-                    w += modbusMaster.getResponseBuffer(iii * gr + 1);
-                }
-                if(w != werte[i + iii]){
-                    werte[i + iii] = w;
-                    geaendert = true;
-                }
-            }
-        } */
         i += ii;
     }
 //    sprintf(s, "Dauer Modbus: %d.\n", millis() - z);
@@ -227,10 +182,6 @@ void Venus::pollen(){
 //    sprintf(s, "Dauer Gesamt: %d.\n", millis() - z);
 //    logeintrag(s);
 }
-
-//Daten Venus::getDaten(){
-//    return daten;
-//}
 
 // --------------------- Timer ---------------------
 void Venus::timerRun(){

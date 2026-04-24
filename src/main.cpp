@@ -60,54 +60,11 @@ void addLog(const char *lo){
     strcat(log1, "\r\n");
     pos += lg;
   }
-//  Serial.println(log1);
 }
 
 char* getLog(){
   return log1;
 }
-
-// Json -----------------------------------------
-char json[200] = {'\0'};
-
-// void generiereJson(Daten daten){
- void generiereJson(){
-   char datum[36];
-   char zeit[36];
-   getDatumZeitStr(datum, zeit);
-//   char sp[5] = {'\0'};
-//   dtostrf(daten.spannung, 3, 1, sp);
-//   char st[5] = {'\0'};
-//   dtostrf(daten.stromakku, 3, 1, st);
-//   sprintf(json, "{\"Spannung\":%s,\"Ladezustand\":%d,\"StromAkku\":%s,\"Typ\":%d",
-//       sp, daten.soc, st, daten.typ);
-//   char s[150] = {'\0'};
-//   if(daten.typ == 2){
-//       dtostrf(daten.strompv, 3, 1, st);
-//       sprintf(s, ",\"StromPV\":%s,\"Temperatur\":%d", st, daten.temperatur);
-//   }else{
-//       strcat(s, ",\"StromPV\":0,\"Temperatur\":0");
-//   }
-//   strcat(json, s);
-//   sprintf(s, ",\"Datum\":\"%s\",\"Zeit\":\"%s\",\"Laden\":%s,\"Entladen\":%s",
-//       datum, zeit, (daten.laden)? "\"ein\"": "\"aus\"", (daten.entladen)? "\"ein\"": "\"aus\"");
-//   strcat(json, s);
-//   strcat(json, "}");
-   sprintf(json, "{\"Netz_P\":%s,\"Batt_P\":%s,\"Batt_U\":%s,\"Batt_Soc\":%s,\"Batt_Temperatur\":%s",
-       "-2500", "-567", "53.34", "55", "33");
-   char s[150] = {'\0'};
-   sprintf(s, ",\"Tag_E_geladen\":%s,\"Tag_E_entladen\":%s,\"Datum\":\"%s\",\"Zeit\":\"%s\"",
-       "4.23", "0.34", datum, zeit);
-   strcat(json, s);
-   strcat(json, "}");
-
- }
-
-//char* getJson(){
-//  Daten daten;
-//  generiereJson();
-//  return json;
-//}
 
 // Wifi Client -----------------------------------------
 boolean apModus = false;
@@ -245,41 +202,21 @@ void logdaten(){
 
 void befehle(){
   server.send(200, "text/plain", "Ok");
-  // if(server.hasArg("bef")){
-  //   if(server.arg("bef").equals("laden")){
-  //       speicher.sendeTel(telLa, true);
-  //   }else if(server.arg("bef").equals("entladen")){
-  //     speicher.sendeTel(telEl, true);
-  //   }else if(server.arg("bef").equals("speicher_aus")){
-  //     speicher.sendeTel(telSa);
-  //   }else if(server.arg("bef").equals("laden_aus")){
-  //     speicher.sendeTel(telLa);
-  //   }else if(server.arg("bef").equals("laden_ein")){
-  //     speicher.sendeTel(telLa + 1);
-  //   }else if(server.arg("bef").equals("entladen_aus")){
-  //     speicher.sendeTel(telEl);
-  //   }else if(server.arg("bef").equals("entladen_ein")){
-  //     speicher.sendeTel(telEl + 1);
-  //   }else if(server.arg("bef").equals("mehr_daten")){
-  //     speicher.sendeTel(telMD);
-  //   }
-  // }
-  // }else if(server.hasArg("rst")){
-  //   server.client().stop();
-  //   delay(100);
-  //   ESP.restart();
-  // }
+//  if(server.hasArg("bef")){
+//  }else 
+  if(server.hasArg("rst")){
+    server.client().stop();
+    delay(100);
+    ESP.restart();
+  }
 }
 
 File datei; 
 boolean upload(const char* d){
   boolean erg = false;
   HTTPUpload& upload = server.upload();
-//  Serial.print("Upload Status:"); Serial.println(upload.status);
   if(upload.status == UPLOAD_FILE_START){
     String filename = (d && d[0] != '\0')? d: upload.filename;
-//    String filename = upload.filename;
-//    Serial.print("Upload File Name: "); Serial.println(filename);
     LittleFS.remove(filename);
     datei = LittleFS.open(filename, "w");
   }else if(upload.status == UPLOAD_FILE_WRITE){
@@ -287,10 +224,9 @@ boolean upload(const char* d){
   }else if(upload.status == UPLOAD_FILE_END){
     if(datei){
       datei.close();
-//      Serial.print("Upload Size: "); Serial.println(upload.totalSize);
       erg = true;
     }else{
-//      Serial.println("Upload fehlgeschlagen.");
+      addLog("Upload fehlgeschlagen.");
     }
   }
   return erg;
@@ -422,16 +358,11 @@ void mqttPub(String topic, char* daten){
       mqttClient.publish((einst.mqttTp + "/" + topic).c_str(), daten);
     }
   }
-//  addLog("Mqtt publish.");
-}
-
-void mqttPub(){
-  mqttPub("Daten", venus.json);
 }
 
 void mqttPubSpontan(){
   if(einst.mqtt && einst.mqttSp)
-    mqttPub();
+    mqttPub("Daten", venus.json);
 }
 
 // NTP Zeitserver -------------------------------------------
@@ -441,7 +372,6 @@ tm dat;
 void setupNTP(){
   if(!apModus){
     configTime(MY_TZ, einst.ntzIp.c_str());
-//    speicher.callbackGetDatumZeit(getDatumZeit);
   }
 }
 
@@ -451,18 +381,6 @@ void getZeit(){
     time(&now);
     localtime_r(&now, &dat);
   }
-}
-
-void getDatumZeit(){
-// void getDatumZeit(Zeit *z){
-//   getZeit();
-//   z->jahr     = dat.tm_year - 100;
-//   z->monat    = dat.tm_mon + 1;
-//   z->tag      = dat.tm_mday;
-//   z->stunde   = dat.tm_hour;
-//   z->minute   = dat.tm_min;
-//   z->sekunde  = dat.tm_sec;
-//   z->tagWoche = dat.tm_wday;
 }
 
 void getDatumZeitStr(char *datum, char *zeit){
@@ -486,7 +404,7 @@ void timerRun(){
   if(mqttPubZeit > 0 && zeit - mqttPubZeit > mqttPubInterval){
     mqttPubZeit = zeit;
     if(mqttPubZeit == 0) mqttPubZeit = 1;
-    mqttPub();
+    mqttPub("Daten", venus.json);
   }
   if(testZeit > 0 && zeit - testZeit > testInterval){
     testZeit = zeit;
@@ -554,7 +472,6 @@ void setup(){
   pinMode(D1, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(D1, LOW);
-//  Serial.setTimeout(40);
   Serial.begin(115200, SERIAL_8N1);
   if(LittleFS.begin()){
     einst.alle_einst_laden();
@@ -567,10 +484,6 @@ void setup(){
   setupTimer();
   setupVenus();
   setupOta();
-//  while(Serial.available()){          // Puffer leeren
-//    Serial.read();
-//    delay(5);
-//  }
   addLog("Programm gestartet.");
 }
 

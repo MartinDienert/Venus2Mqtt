@@ -27,8 +27,6 @@ class Einstellungen  // Class Declaration
     
     private:
         ESP8266WebServer* server;
-//        void einst_speichern(const char* dateiname, String daten[], int l);
-//        boolean einst_lesen(const char* dateiname, String daten[], int l);
         void parseJson();
         void json_speichern();
         boolean json_lesen();
