@@ -391,35 +391,27 @@ void getDatumZeitStr(char *datum, char *zeit){
 
 // Timer -------------------------------------------
 unsigned long mqttPubZeit = 0;
-unsigned long mqttPubInterval = 30000;                    // 30 Sekunden
-unsigned long mDatenZeit = 0;
-const unsigned long mDatenInterval = 240000;              // 4 Minuten
+unsigned long mqttPubIntervall = 30000;                    // 30 Sekunden
 unsigned long testZeit = 0;
-unsigned long testInterval = 30000;
-boolean testB = false;
-int testI = 0;
+unsigned long testIntervall = 30000;
 
 void timerRun(){
   unsigned long zeit = millis();
-  if(mqttPubZeit > 0 && zeit - mqttPubZeit > mqttPubInterval){
+  if(mqttPubZeit > 0 && zeit - mqttPubZeit > mqttPubIntervall){
     mqttPubZeit = zeit;
     if(mqttPubZeit == 0) mqttPubZeit = 1;
     mqttPub("Daten", venus.json);
   }
-  if(testZeit > 0 && zeit - testZeit > testInterval){
+  if(testZeit > 0 && zeit - testZeit > testIntervall){
     testZeit = zeit;
     if(testZeit == 0) testZeit = 1;
-    char t[] = "SpeicherM02/Befehl";
-    byte p[5] = {'l','a','d','e','n'};
-    callback(t, p, 5);
+  // mache was sinnvolles
   }
 }
 
-void setMqttPubTimer(){
-  if(einst.mqttIv != 0){
-    mqttPubInterval = einst.mqttIv * 1000;
-  }
-  if(einst.mqtt && mqttPubInterval > 0){
+void setMqttPubIntervall(unsigned long i){
+  mqttPubIntervall = i * 1000;
+  if(einst.mqtt && mqttPubIntervall > 0){
     mqttPubZeit = millis();
     if(mqttPubZeit == 0) mqttPubZeit = 1;
   }else{
@@ -427,14 +419,14 @@ void setMqttPubTimer(){
   }
 }
 
-void setTestTimer(){
+void setTestIntervall(){
   testZeit = millis();
   if(testZeit == 0) testZeit = 1;
 }
 
 void setupTimer(){
-  setMqttPubTimer();
-//  setTestTimer();
+  setMqttPubIntervall(einst.mqttIv);
+//  setTestIntervall();
 }
 
 // Venus -------------------------------------------
@@ -454,12 +446,16 @@ void logEintrag(const char *s){
   addLog(s);
 }
 
+void setModbusIntervall(unsigned long i){
+  venus.setIntervall(i);
+}
+
 void setupVenus(){
-   venus.callbackLesenSenden(lesen, senden);
-   venus.callbackNeueDaten(neueDaten);
-   venus.callbackDatumZeit(getDatumZeitStr);
-   venus.callbackLogeintrag(logEintrag);
-   venus.genRegister();
+  venus.callbackLesenSenden(lesen, senden);
+  venus.callbackNeueDaten(neueDaten);
+  venus.callbackDatumZeit(getDatumZeitStr);
+  venus.callbackLogeintrag(logEintrag);
+  venus.genRegister();
 }
 
 // OTA Update ----------------------------------------

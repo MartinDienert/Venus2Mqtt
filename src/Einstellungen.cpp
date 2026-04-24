@@ -34,6 +34,7 @@ void Einstellungen::parseJson(){
     return;
   }
   ntzIp = doc["NtzIp"].as<String>();
+  abfIv = doc["AbfIv"].as<long>();
   wlan = doc["Wlan"];
   ssid = doc["SSId"].as<String>();
   pwd = doc["PWD"].as<String>();
@@ -51,6 +52,7 @@ void Einstellungen::parseJson(){
 void Einstellungen::genJson(){
   JsonDocument doc;
   doc["NtzIp"] = ntzIp;
+  doc["AbfIv"] = abfIv;
   doc["Wlan"] = wlan;
   doc["SSId"] = ssid;
   doc["PWD"] = pwd;
@@ -72,12 +74,15 @@ void Einstellungen::alle_einst_laden(){
     genJson();
     json_speichern();
   }
+  setModbusIntervall(abfIv);
 }
 
 void Einstellungen::setEinst(){
     if(server->hasArg("save")){
         if(server->arg("save").equals("ei") && server->hasArg("ntip")){
             ntzIp = server->arg("ntip");
+            (server->hasArg("abfiv"))? abfIv = server->arg("abfiv").toInt(): abfIv = 0;
+            setModbusIntervall(abfIv);
         }else if(server->arg("save").equals("wl") && server->hasArg("ssid") && server->hasArg("pwd")){
             wlan = (server->hasArg("wl") && server->arg("wl").equals("on"))? true: false;
             ssid = server->arg("ssid");
@@ -92,7 +97,7 @@ void Einstellungen::setEinst(){
             (server->hasArg("mqpw"))? mqttPw = server->arg("mqpw"): mqttPw = "";
             mqttTp = server->arg("mqtp");
             (server->hasArg("mqiv"))? mqttIv = server->arg("mqiv").toInt(): mqttIv = 0;
-            setMqttPubTimer();
+            setMqttPubIntervall(mqttIv);
         }
         genJson();
         json_speichern();

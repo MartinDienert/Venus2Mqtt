@@ -5,6 +5,7 @@ void addLog(const char *);
 void reconnectMqtt();
 void mqttPub(String, char *);
 void getDatumZeitStr(char *, char *);
-void setMqttPubTimer();
+void setMqttPubIntervall(unsigned long);
+void setModbusIntervall(unsigned long);
 
 #endif

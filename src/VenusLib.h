@@ -11,7 +11,6 @@ struct Reg{
 };
 
 const int maxReg = 10;
-const long abfrage_Interval = 1000;     // Abfrageintervall in Millisekunden, (1 Sekunde)
 
 class Venus{                            // Class Declaration
     protected:
@@ -29,6 +28,7 @@ class Venus{                            // Class Declaration
         void callbackNeueDaten(NeueDaten);
         void callbackDatumZeit(DatumZeit);
         void callbackLogeintrag(Logeintrag);
+        void setIntervall(unsigned long);
         void genRegister();
         void run();
         void setReg(int, boolean, int);
@@ -49,7 +49,7 @@ class Venus{                            // Class Declaration
         uint8_t modbusFehler;
         // ------ Timer -------
         unsigned long abfrageZeit = 0;
-        unsigned long abfrageInterval;
+        unsigned long abfrageIntervall = 0;             // Abfrageintervall in Millisekunden (0 = keine Abfrage)
         void timerRun();
         void setAbfrageTimer(unsigned long);
 };

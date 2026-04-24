@@ -9,6 +9,7 @@ class Einstellungen  // Class Declaration
     public:
         Einstellungen(ESP8266WebServer* s);
         String ntzIp = "de.pool.ntp.org";
+        unsigned long abfIv = 0;
         boolean wlan = false;
         String ssid = "";
         String pwd = "";

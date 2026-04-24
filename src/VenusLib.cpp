@@ -5,7 +5,6 @@
 
 Venus::Venus(int id, Stream &serial){
     modbusMaster.begin(id, serial);
-    setAbfrageTimer(abfrage_Interval);
 }
 
 Venus::~Venus(){
@@ -28,6 +27,10 @@ void Venus::callbackDatumZeit(DatumZeit d){
 
 void Venus::callbackLogeintrag(Logeintrag l){
     logeintrag = l;
+}
+
+void Venus::setIntervall(unsigned long a){
+    setAbfrageTimer(a);
 }
 
 String Venus::json_lesen(const char* d){
@@ -186,15 +189,18 @@ void Venus::pollen(){
 // --------------------- Timer ---------------------
 void Venus::timerRun(){
     unsigned long zeit = millis();
-    if(abfrageZeit > 0 && zeit - abfrageZeit > abfrageInterval){
-        abfrageZeit = 0;
-        setAbfrageTimer(abfrage_Interval);
+    if(abfrageZeit > 0 && zeit - abfrageZeit > abfrageIntervall){
+        abfrageZeit = zeit;
+        if(abfrageZeit == 0) abfrageZeit = 1;
         pollen();
     }
 }
 
-void Venus::setAbfrageTimer(unsigned long wz){
-    abfrageZeit = millis();
-    if(abfrageZeit == 0) abfrageZeit = 1;
-    abfrageInterval = wz;
+void Venus::setAbfrageTimer(unsigned long i){
+    abfrageIntervall = i;
+    if(abfrageIntervall > 0){
+        abfrageZeit = millis();
+        if(abfrageZeit == 0) abfrageZeit = 1;
+    }else
+        abfrageZeit = 0;
 }

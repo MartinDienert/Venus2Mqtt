@@ -18,6 +18,10 @@
                         <label for="ntip">Ntp-Server</label>
                         <input id='ntip' placeholder='de.pool.ntp.org' name='ntip' value=''>
                     </div>
+                    <div class='taste'>
+                        <label for="abfiv">Modbus Intervall</label>
+                        <input id='abfiv' name='abfiv' value=''>
+                    </div>
                     <div class='taste abstand'>
                         <button name='save' value='ei' type='submit' class='button bgrn'>Speichern</button>
                     </div>
@@ -51,6 +55,7 @@
         function sD(t){
             od = JSON.parse(t);
             eB('ntip').value=od.NtzIp;
+            eB('abfiv').value=od.AbfIv;
         }
         dho('einst.json');
     </script>
