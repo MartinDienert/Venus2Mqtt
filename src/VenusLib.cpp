@@ -1,5 +1,4 @@
 #include <ModbusMaster.h>
-#include "LittleFS.h"
 #include <ArduinoJson.h>
 #include <VenusLib.h>
 
@@ -25,37 +24,33 @@ void Venus::callbackDatumZeit(DatumZeit d){
     datumZeit = d;
 }
 
-void Venus::callbackLogeintrag(Logeintrag l){
-    logeintrag = l;
+void Venus::callbackLogeintrag(AddLog l){
+    addLog = l;
+}
+
+void Venus::logeintrag(const char* s){
+    addLog(s);
+}
+
+void Venus::logeintrag(const char* s1, const char* f, const char* s2, int r){
+    int l = strlen(s1) + strlen(f) + strlen(s2) + 5 + 1;
+    char tx[l];
+    snprintf(tx, l,"%s%s%s%d", s1, f, s2, r);
+    addLog(tx);
 }
 
 void Venus::setIntervall(unsigned long a){
     setAbfrageTimer(a);
 }
 
-String Venus::json_lesen(const char* d){
-    File datei = LittleFS.open(d, "r");
-    if(datei){
-        String s = datei.readString();
-        datei.close();
-        return s;
-    }
-    return "";
-}
-
-void Venus::genRegister(){
+void Venus::genRegister(const char* s){
     if(reg != nullptr) free(reg);
     if(werte != nullptr) free(werte);
     reg = nullptr;
     werte = nullptr;
     arrayGr = 0;
     JsonDocument doc;
-    String s = json_lesen("register.json");
-    if(s.length() == 0){
-        logeintrag("Fehler beim lesen der register.json.");
-        return;
-    }
-    DeserializationError error = deserializeJson(doc, s.c_str());
+    DeserializationError error = deserializeJson(doc, s);
     if(error){
         logeintrag("Fehler beim deserialisieren der register.json.");
         return;
@@ -82,35 +77,45 @@ void Venus::setReg(int r, boolean r32, int w){
     if(modbusFehler == modbusMaster.ku8MBSuccess){
         if(r32) modbusFehler = modbusMaster.writeSingleRegister(r + 1, highWord(w));
         if(modbusFehler != modbusMaster.ku8MBSuccess){
-            logeintrag("Fehler beim Register schreiben, HighWord.");
+            logeintrag("Fehler Register schreiben: ", getFehler(), ", Register: ", r);
         }
     }else{
-        logeintrag("Fehler beim Register schreiben, LowWord.");
+        logeintrag("Fehler Register schreiben: ", getFehler(), ", Register: ", r);
     }
+}
+
+const char* Venus::getFehler(){
+    switch(modbusFehler){
+        case modbusMaster.ku8MBIllegalFunction:
+            return "illegale Funktion";
+        case modbusMaster.ku8MBIllegalDataAddress:
+            return "ungültige Adresse";
+        case modbusMaster.ku8MBIllegalDataValue:
+            return "fehlerhafter Wert";
+        case modbusMaster.ku8MBSlaveDeviceFailure:
+            return "Gerätefehler";
+        case modbusMaster.ku8MBInvalidSlaveID:
+            return "ungültige Slave ID";
+        case modbusMaster.ku8MBInvalidFunction:
+            return "ungültige Funktion";
+        case modbusMaster.ku8MBResponseTimedOut:
+            return "Zeitüberschreitung";
+        case modbusMaster.ku8MBInvalidCRC:
+            return "ungültige CRC";
+    }
+    return "";
 }
 
 char* Venus::getRegJson(int r, boolean r32){
     int w = getReg(r, r32);
     JsonDocument doc;
-    char b[10];
-    itoa(r, b, 10);
     if(modbusFehler != modbusMaster.ku8MBSuccess){
-        switch(modbusFehler){
-            case modbusMaster.ku8MBIllegalFunction:
-                doc["fehler"] = "illegale Funktion";
-                break;
-            case modbusMaster.ku8MBIllegalDataAddress:
-                doc["fehler"] = "falsche Adresse";
-                break;
-            case modbusMaster.ku8MBIllegalDataValue:
-                doc["fehler"] = "fehlerhafter Wert";
-                break;
-            case modbusMaster.ku8MBSlaveDeviceFailure:
-                doc["fehler"] = "Gerätefehler";
-                break;
-        }
-    }else
+        doc["fehler"] = getFehler();
+    }else{
+        char b[10];
+        itoa(r, b, 10);
         doc[b] = (r32)? (int32_t)w: (int16_t)w;
+    }
     serializeJson(doc, wertJson, 40);
     return wertJson;
 }
@@ -137,6 +142,8 @@ boolean Venus::getRegs(int r, boolean r32, int a, int p, int* werte){
                 g = true;
             }
         }
+    }else{
+        logeintrag("Fehler Register lesen: ", getFehler(), ", Register: ", r);
     }
     return g;
 }
@@ -155,10 +162,7 @@ void Venus::genJson(){
         if(d.faktor < 1){
             doc[d.name] = (float_t)(werte[i] * d.faktor);
         }else{
-            if(d.typ == 1)
-                doc[d.name] = (int16_t)(werte[i] * d.faktor);
-            else
-                doc[d.name] = werte[i] * d.faktor;
+            doc[d.name] = (d.typ == 1)? (int16_t)(werte[i] * d.faktor): (int32_t)(werte[i] * d.faktor);
         }
     }
     serializeJson(doc, json, 250);
@@ -174,6 +178,8 @@ void Venus::pollen(){
             ii++;
         if(getRegs(reg[i].reg, (reg[i].typ == 2)? true: false, ii + 1, i, werte))
             geaendert = true;
+        if(modbusFehler == modbusMaster.ku8MBResponseTimedOut)
+          return;
         i += ii;
     }
 //    sprintf(s, "Dauer Modbus: %d.\n", millis() - z);

@@ -31,7 +31,6 @@ class Einstellungen  // Class Declaration
         void parseJson();
         void json_speichern();
         boolean json_lesen();
-
 };
 
 #endif

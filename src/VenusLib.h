@@ -18,8 +18,8 @@ class Venus{                            // Class Declaration
         NeueDaten neueDaten = nullptr;
         using DatumZeit = void (*)(char*, char*);
         DatumZeit datumZeit = nullptr;
-        using Logeintrag = void (*)(const char *);
-        Logeintrag logeintrag = nullptr;
+        using AddLog = void (*)(const char*);
+        AddLog addLog = nullptr;
 
     public:
         Venus(int id, Stream &serial);  // Constructor
@@ -27,9 +27,9 @@ class Venus{                            // Class Declaration
         void callbackLesenSenden(void (*)(), void (*)());
         void callbackNeueDaten(NeueDaten);
         void callbackDatumZeit(DatumZeit);
-        void callbackLogeintrag(Logeintrag);
+        void callbackLogeintrag(AddLog);
         void setIntervall(unsigned long);
-        void genRegister();
+        void genRegister(const char*);
         void run();
         void setReg(int, boolean, int);
         char* getRegJson(int, boolean);
@@ -39,6 +39,8 @@ class Venus{                            // Class Declaration
 
     private:
         ModbusMaster modbusMaster;
+        void logeintrag(const char*);
+        void logeintrag(const char*, const char*, const char*, int);
         String json_lesen(const char*);
         void pollen();
         void genJson();
@@ -47,6 +49,7 @@ class Venus{                            // Class Declaration
         int arrayGr = 0;
         char wertJson[40] = {'\0'};
         uint8_t modbusFehler;
+        const char* getFehler();
         // ------ Timer -------
         unsigned long abfrageZeit = 0;
         unsigned long abfrageIntervall = 0;             // Abfrageintervall in Millisekunden (0 = keine Abfrage)

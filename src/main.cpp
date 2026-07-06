@@ -41,14 +41,15 @@ void logloeschen(int a){                  // a = benötigter Platz im Puffer, -1
   }
 }
 
-void addLog(const char *lo){
+void addLog(const char *lo, boolean b){
   char datum[36];
   char zeit[36];
   getDatumZeitStr(datum, zeit);
   uint16 ld = strlen(datum);
   uint16 lz = strlen(zeit);
   uint16 le = strlen(lo);
-  uint16 lg = le + ld + lz + 4;
+  uint16 lg = le + ld + lz;
+  if(b) lg += 4;
   if(pos + lg > ll)
     logloeschen(-2);                  // löscht die Hälfte des Puffers
   if(pos + lg < ll + 1){
@@ -57,9 +58,13 @@ void addLog(const char *lo){
     strcat(log1, zeit);
     strcat(log1, " ");
     strcat(log1, lo);
-    strcat(log1, "\r\n");
+    if(b) strcat(log1, "\r\n");
     pos += lg;
   }
+}
+
+void addLog(const char *lo){
+  addLog(lo, true);
 }
 
 char* getLog(){
@@ -242,8 +247,15 @@ void einstUpload(){
 }
 
 void regUpload(){
-  if(upload("register.json"))
-    venus.genRegister();
+  if(upload("register.json")){
+    File datei = LittleFS.open("register.json", "r");
+    if(!datei){
+      addLog("Datei \"register.json\" nicht gefunden.");
+    }else{
+      venus.genRegister(datei.readString().c_str());
+      datei.close();
+    }
+  }
 }
 
 void setupWS(){
@@ -442,10 +454,6 @@ void neueDaten(){
   mqttPubSpontan();
 }
 
-void logEintrag(const char *s){
-  addLog(s);
-}
-
 void setModbusIntervall(unsigned long i){
   venus.setIntervall(i);
 }
@@ -454,8 +462,14 @@ void setupVenus(){
   venus.callbackLesenSenden(lesen, senden);
   venus.callbackNeueDaten(neueDaten);
   venus.callbackDatumZeit(getDatumZeitStr);
-  venus.callbackLogeintrag(logEintrag);
-  venus.genRegister();
+  venus.callbackLogeintrag(addLog);
+  File datei = LittleFS.open("register.json", "r");
+  if(!datei){
+    addLog("Datei \"register.json\" nicht gefunden.");
+  }else{
+    venus.genRegister(datei.readString().c_str());
+    datei.close();
+  }
 }
 
 // OTA Update ----------------------------------------
